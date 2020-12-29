@@ -7,7 +7,9 @@
   "author": "kim-hyunjin <hyunjin1612@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js",
-    "prestart": "tsc"
+    "start": "tsc-watch --onSuccess \"node dist/index.js\""
+  },
+  "devDependencies": {
+    "tsc-watch": "^4.2.9"
   }
 }
