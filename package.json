@@ -1,0 +1,9 @@
+{
+  "name": "learning-typescript",
+  "version": "1.0.0",
+  "description": "Learning Typescript by making a Blockchain with it",
+  "main": "index.js",
+  "repository": "https://github.com/kim-hyunjin/learning-typescript.git",
+  "author": "kim-hyunjin <hyunjin1612@gmail.com>",
+  "license": "MIT"
+}
