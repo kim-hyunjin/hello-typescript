@@ -11,5 +11,8 @@
   },
   "devDependencies": {
     "tsc-watch": "^4.2.9"
+  },
+  "dependencies": {
+    "typescript": "^4.1.3"
   }
 }
