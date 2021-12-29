@@ -1,7 +1,7 @@
 const button = document.querySelector("button");
 
 if (button) {
-  button.addEventListener("click", (event) => console.log(event));
+    button.addEventListener("click", (event) => console.log(event));
 }
 
 /**
@@ -26,21 +26,21 @@ const activeHobbies = ["Hiking"];
 activeHobbies.push(...hobbies);
 
 const person = {
-  firstName: "max",
-  age: 30,
+    firstName: "max",
+    age: 30,
 };
 
 const person2 = {
-  ...person,
+    ...person,
 };
 
 /**
  * 나머지 매개변수
  */
 const add3 = (...numbers: number[]) => {
-  return numbers.reduce((curResult, curValue) => {
-    return curResult + curValue;
-  }, 0);
+    return numbers.reduce((curResult, curValue) => {
+        return curResult + curValue;
+    }, 0);
 };
 
 const addedNumbers = add3(1, 2, 3, 4, 5, 6);
@@ -48,9 +48,9 @@ console.log(addedNumbers);
 
 // tuple
 const add4 = (...numbers: [number, number, number]) => {
-  return numbers.reduce((curResult, curValue) => {
-    return curResult + curValue;
-  }, 0);
+    return numbers.reduce((curResult, curValue) => {
+        return curResult + curValue;
+    }, 0);
 };
 
 add4(1, 2, 3);
