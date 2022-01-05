@@ -218,11 +218,28 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
         listEl.innerHTML = "";
         for (const projItem of projects) {
             if (projItem.status === this.projectType) {
-                const li = document.createElement("li");
-                li.textContent = projItem.title;
-                listEl.appendChild(li);
+                new ProjectItem(this.element.querySelector("ul")!.id, projItem);
             }
         }
+    }
+}
+
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+    private project: Project;
+
+    constructor(hostId: string, project: Project) {
+        super("single-project", hostId, "back", project.id);
+        this.project = project;
+
+        this.configure();
+        this.renderContent();
+    }
+
+    configure(): void {}
+    renderContent(): void {
+        this.element.querySelector("h2")!.textContent = this.project.title;
+        this.element.querySelector("h3")!.textContent = String(this.project.people);
+        this.element.querySelector("p")!.textContent = this.project.description;
     }
 }
 
