@@ -13,14 +13,23 @@ class Project {
     ) {}
 }
 
-type Listener = (projects: Project[]) => void;
+type Listener<T> = (items: T[]) => void;
 
-class ProjectState {
+class ListenableState<T> {
+    protected listeners: Listener<T>[] = [];
+
+    addListener(listenerFn: Listener<T>) {
+        this.listeners.push(listenerFn);
+    }
+}
+
+class ProjectState extends ListenableState<Project> {
     private projects: Project[] = [];
-    private listeners: Listener[] = [];
     private static instance: ProjectState;
 
-    private constructor() {}
+    private constructor() {
+        super();
+    }
 
     static getInstance() {
         if (this.instance) {
@@ -40,10 +49,6 @@ class ProjectState {
         );
         this.projects.push(newProj);
         this.notify();
-    }
-
-    addListener(listenerFn: Listener) {
-        this.listeners.push(listenerFn);
     }
 
     notify() {
@@ -99,41 +104,57 @@ function Autobind(
     return adjDescriptor;
 }
 
-class ProjectInput {
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     templateElement: HTMLTemplateElement;
-    hostElement: HTMLDivElement;
-    formElement: HTMLFormElement;
+    hostElement: T;
+    element: U;
+
+    constructor(
+        templateId: string,
+        hostElementId: string,
+        insertPos: "front" | "back",
+        newElementId?: string
+    ) {
+        this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement;
+        this.hostElement = document.getElementById(hostElementId)! as T;
+        const importedNode = document.importNode(this.templateElement.content, true);
+        this.element = importedNode.firstElementChild! as U;
+        if (newElementId) this.element.id = newElementId;
+
+        this.attachToHostElement(this.element, insertPos);
+    }
+
+    abstract configure(): void;
+    abstract renderContent(): void;
+
+    private attachToHostElement(element: Element, insertPos: "front" | "back") {
+        if (insertPos === "front") this.hostElement.insertAdjacentElement("afterbegin", element);
+        if (insertPos === "back") this.hostElement.insertAdjacentElement("beforeend", element);
+    }
+}
+
+class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
     titleInputElement: HTMLInputElement;
     descriptionInputElement: HTMLInputElement;
     peopleInputElement: HTMLInputElement;
 
     constructor() {
-        this.templateElement = document.getElementById("project-input")! as HTMLTemplateElement;
-        this.hostElement = document.getElementById("app")! as HTMLDivElement;
-
-        const importedNode = document.importNode(this.templateElement.content, true);
-        this.formElement = importedNode.firstElementChild! as HTMLFormElement;
-        this.formElement.id = "user-input";
-
-        this.titleInputElement = this.formElement.querySelector("#title")! as HTMLInputElement;
-        this.descriptionInputElement = this.formElement.querySelector(
+        super("project-input", "app", "front", "user-input");
+        this.titleInputElement = this.element.querySelector("#title")! as HTMLInputElement;
+        this.descriptionInputElement = this.element.querySelector(
             "#description"
         )! as HTMLInputElement;
-        this.peopleInputElement = this.formElement.querySelector("#people")! as HTMLInputElement;
-
+        this.peopleInputElement = this.element.querySelector("#people")! as HTMLInputElement;
         this.configure();
-        this.attachToHostElement(this.formElement);
     }
 
-    private configure() {
+    configure() {
         // submitHandler 안의 this가 현재 이 클래스를 가리키도록 bind해주어야 한다. or 데코레이터 사용
-        // this.formElement.addEventListener("submit", this.submitHandler.bind(this));
-        this.formElement.addEventListener("submit", this.submitHandler);
+        // this.element.addEventListener("submit", this.submitHandler.bind(this));
+        this.element.addEventListener("submit", this.submitHandler);
     }
 
-    private attachToHostElement(element: Element) {
-        this.hostElement.insertAdjacentElement("afterbegin", element);
-    }
+    renderContent(): void {}
 
     @Autobind
     private submitHandler(event: Event) {
@@ -170,25 +191,23 @@ class ProjectInput {
     }
 }
 
-class ProjectList {
-    templateElement: HTMLTemplateElement;
-    hostElement: HTMLDivElement;
-    sectionElement: HTMLElement;
-    // assignedProjects: Project[];
-
-    // 생성자로 받은 type을 바로 멤버변수로 만든다.
+class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     constructor(private projectType: "active" | "finished") {
-        this.templateElement = document.getElementById("project-list")! as HTMLTemplateElement;
-        this.hostElement = document.getElementById("app")! as HTMLDivElement;
+        super("project-list", "app", "back", `${projectType}-projects`);
 
-        const importedNode = document.importNode(this.templateElement.content, true);
-        this.sectionElement = importedNode.firstElementChild as HTMLElement;
-        this.sectionElement.id = `${this.projectType}-projects`;
+        this.configure();
+        this.renderContent();
+    }
 
-        // this.assignedProjects = [];
+    configure(): void {
         projectState.addListener(this.renderProjects);
-        this.renderSectionTitle();
-        this.attachToHostElement(this.sectionElement);
+    }
+
+    renderContent(): void {
+        const listId = `${this.projectType}-projects-list`;
+        this.element.querySelector("ul")!.id = listId;
+        this.element.querySelector("h2")!.textContent =
+            this.projectType.toUpperCase() + " PROJECTS";
     }
 
     @Autobind
@@ -204,17 +223,6 @@ class ProjectList {
                 listEl.appendChild(li);
             }
         }
-    }
-
-    private renderSectionTitle() {
-        const listId = `${this.projectType}-projects-list`;
-        this.sectionElement.querySelector("ul")!.id = listId;
-        this.sectionElement.querySelector("h2")!.textContent =
-            this.projectType.toUpperCase() + " PROJECTS";
-    }
-
-    private attachToHostElement(element: Element) {
-        this.hostElement.insertAdjacentElement("beforeend", element);
     }
 }
 
