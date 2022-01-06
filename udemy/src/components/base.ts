@@ -1,4 +1,5 @@
-export abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+// default export보다는 네임드 export를 사용하는 것이 더 좋다. import하는쪽의 name을 강제할 수 있기 때문
+export default abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     templateElement: HTMLTemplateElement;
     hostElement: T;
     element: U;

@@ -1,9 +1,9 @@
 import { Autobind } from "../decorators/autobind.js";
 import { projectState } from "../state/project-state.js";
-import { validate } from "../utils/validation.js";
-import { Component } from "./base.js";
+import * as Validation from "../utils/validation.js"; // 그룹핑
+import BaseComponent from "./base.js";
 
-export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
+export class ProjectInput extends BaseComponent<HTMLDivElement, HTMLFormElement> {
     titleInputElement: HTMLInputElement;
     descriptionInputElement: HTMLInputElement;
     peopleInputElement: HTMLInputElement;
@@ -43,9 +43,9 @@ export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
         const enteredPeople = this.peopleInputElement.value;
 
         if (
-            validate({ value: enteredTitle, required: true }) &&
-            validate({ value: enteredDesc, required: true, minLength: 5 }) &&
-            validate({ value: Number(enteredPeople), required: true, min: 1, max: 5 })
+            Validation.validate({ value: enteredTitle, required: true }) &&
+            Validation.validate({ value: enteredDesc, required: true, minLength: 5 }) &&
+            Validation.validate({ value: Number(enteredPeople), required: true, min: 1, max: 5 })
         ) {
             return [enteredTitle, enteredDesc, Number(enteredPeople)];
         } else {

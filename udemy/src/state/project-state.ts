@@ -13,12 +13,16 @@ class ListenableState<T> {
 export class ProjectState extends ListenableState<Project> {
     private projects: Project[] = [];
     private static instance: ProjectState;
+    private static cnt: number = 0;
 
     private constructor() {
         super();
     }
 
     static getInstance() {
+        this.cnt++;
+        console.log(this.cnt); // 여러곳에서 import해도 한번만 실행됨
+
         if (this.instance) {
             return this.instance;
         }
@@ -53,4 +57,5 @@ export class ProjectState extends ListenableState<Project> {
     }
 }
 
+console.log("여러 곳에서 import 할때 몇 번 실행될까? 정답: 1번");
 export const projectState = ProjectState.getInstance();
