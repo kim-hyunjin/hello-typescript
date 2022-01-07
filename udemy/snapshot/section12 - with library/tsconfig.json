@@ -65,6 +65,6 @@
     },
     "exclude": [
         "node_modules", // would be the default
-        "archive"
+        "snapshot"
     ]
 }
